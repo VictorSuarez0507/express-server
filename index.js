@@ -4,17 +4,13 @@ const app = express();
 
 const port = 3000;
 
-const tasks = [
-    {
-        "id":"123456",
-        "isCompleted":false,
-        "description":"Walk the dog",
-    }
-];
+const viewRouter = require("./list-view-router");
+const editRouter = require("./list-edit-router");
 
-app.get("/tasks", (req, res) => {
-    res.status(200).send(tasks);
-});
+app.use(express.json());
+
+app.use("/tasks", editRouter);
+app.use("/tasks", viewRouter);
 
 app.listen(port, () => {
     console.log(`Server listening in port ${port}`)
