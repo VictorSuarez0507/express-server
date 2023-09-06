@@ -22,7 +22,7 @@ function completeTask (id) {
 function deleteTask (id) {
     const task = tasksList.findIndex((task) => task.id === id);
     if (task !== -1) {
-        tasksList.splice(taskIndex, 1);
+        tasksList.splice(task, 1);
     }
 }
 
