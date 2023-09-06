@@ -2,11 +2,22 @@ const express = require("express");
 const {Task, tasksList, addTask, completeTask, deleteTask, } = require("./tasksFunction");
 const router = express.Router();
 
-router.post('/', (req, res) => {
+function validateEditrouter (req, res, next) {
     const {id, description} = req.body;
     if (!id || isNaN(id) || !description) {
         return res.status(400).json({ error: "Se debe registrar un ID númerico y una description de la tarea" });
     }
+    next();
+}
+
+
+router.use(validateEditrouter);
+
+router.post('/', (req, res) => {
+    const {id, description} = req.body;
+    // if (!id || isNaN(id) || !description) {
+    //     return res.status(400).json({ error: "Se debe registrar un ID númerico y una description de la tarea" });
+    // }
     const task = new Task(id, description, false) 
     addTask(task)
     res.json({ mensaje: "Tarea agregada con éxito" });
@@ -28,7 +39,7 @@ router.put("/:id", (req, res) => {
     if (task) {
         completeTask(id); 
         return res.json({ mensaje: "Se completo la tarea" });
-    }
+    } 
     res.status(404).json({ error: "No es posible completar la tarea" });
 });
 
