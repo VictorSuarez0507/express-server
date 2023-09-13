@@ -13,9 +13,15 @@ function validateEditrouter (req, res, next) {
 router.post('/', validateEditrouter, (req, res) => {
     const {id, description} = req.body;
     const task = new Task(id, description, false) 
-    addTask(task)
-    res.json({ mensaje: "Tarea agregada con éxito" });
+    const repeat = tasksList.some(task => task.id === id);
+    if (repeat) {
+        res.status(400).json({error : `Ya se encuentra creada una tarea con el ID ${id}`})
+    } else {
+        addTask(task)
+        res.json({ mensaje: "Tarea agregada con éxito" });
+    } 
 });
+
 
 router.delete("/:id", (req, res) => {
     const id = req.params.id; 
