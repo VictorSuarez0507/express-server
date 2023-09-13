@@ -2,16 +2,8 @@ const express = require("express");
 const router = express.Router();
 const {tasksList, showTasks} = require("./tasksFunction")
 
-function validateViewRouter(req, res, next) {
-    if (req.path !== '/' && req.path !== '/completed' && req.path !== '/incompleted'  ) {
-      return res.status(400).json({ error: 'La ruta debe ser completed o incompleted ' });
-    }
-    next();
-}
 
-router.use(validateViewRouter);
-
-router.get("/", (req, res) => {
+router.get("/", (_req, res) => {
     res.json(showTasks());
 })
 
@@ -32,5 +24,18 @@ router.get("/incompleted",(req, res) => {
         res.json(incompletedTasks);
     }
 });
+router.get("/:id", (req, res) => {
+    const id = req.params.id
+    if (isNaN(id)) {
+        res.status(404).json({error: "Debe ingresar una ID númerico para visualizar la tarea solicitada"})
+    }
+    const data = [...tasksList].filter(task => id === task.id)
+    if (data.length !== 0) {
+        res.status(404).json(data);
+    } else {
+        
+        res.status(404).json({error: `No existe tarea registrada con el ID ${id} indicado`});
+    }
+})
 
 module.exports = router;

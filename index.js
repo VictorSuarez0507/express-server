@@ -29,6 +29,11 @@ function validateMethods (req, res, next) {
     next();
 }
 
+function errorHandler (error, _req, res, _next) {
+    console.error(error);
+    res.status(500).json({ error: "Error en el servidor." });
+};
+
 function validateToken (req, res, next) {
     const userToken = req.headers.authorization;
     if(!userToken) {
@@ -37,7 +42,7 @@ function validateToken (req, res, next) {
 
     jwt.verify(userToken, secretKey, (err, data) => {
         if (err) {
-            return res.status(403).json({error: "Token inválido o faltante. Intentalo nuevamente"});
+            return res.status(403).json({error: "Token inválido o ya está vencido. Intentalo nuevamente"});
         }
         next();
     });
@@ -50,7 +55,7 @@ app.post("/login", (req, res) => {
     if (!user) {
         return res.status(401).json({ error: "Email o password incorrectos, valide nuevamente"});
     }
-    const token = jwt.sign({ id: user.id }, secretKey);
+    const token = jwt.sign({ id: user.id }, secretKey, {expiresIn:"15m"});
     res.json({ token });
 });
 
@@ -58,11 +63,13 @@ app.get("/protected", validateToken, (req, res) => {
     res.json({message: "Ruta protegida, se valido el token."});
 });
 
-
-app.use(validateMethods);
-
 app.use("/tasks", editRouter);
 app.use("/tasks", viewRouter);
+app.use(validateMethods);
+app.use(validateToken);
+app.use(errorHandler);
+
+
 
 app.listen(port, () => {
     console.log(`Server listening in port ${port}`)
